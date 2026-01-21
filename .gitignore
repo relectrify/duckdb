@@ -344,9 +344,6 @@ zig-cache/*
 # .db files
 *.db
 
-# local cmake extension config
-extension/extension_config_local.cmake
-
 # extension_external dir
 extension_external
 
