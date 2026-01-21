@@ -10,8 +10,10 @@ duckdb_extension_load(httpfs
 duckdb_extension_load(mysql_scanner
     GIT_URL https://github.com/duckdb/duckdb-mysql
     GIT_TAG ecb76de715dfe0b5bba52f4fc8bde87186dd486f
+    APPLY_PATCHES
 )
 duckdb_extension_load(postgres_scanner
     GIT_URL https://github.com/duckdb/duckdb-postgres
     GIT_TAG b63ef4b1eb007320840b6d1760f3c9b139bb3b49
+    APPLY_PATCHES
 )
