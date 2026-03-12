@@ -1,0 +1,14 @@
+diff --git i/vcpkg_ports/libmariadb/portfile.cmake w/vcpkg_ports/libmariadb/portfile.cmake
+index df98673..a65a149 100644
+--- i/vcpkg_ports/libmariadb/portfile.cmake
++++ w/vcpkg_ports/libmariadb/portfile.cmake
+@@ -46,6 +46,9 @@ else()
+     set(WITH_SSL OFF)
+ endif()
+ 
++string(APPEND VCPKG_C_FLAGS " -Wno-error=discarded-qualifiers")
++string(APPEND VCPKG_CXX_FLAGS " -Wno-error=discarded-qualifiers")
++
+ vcpkg_cmake_configure(
+     SOURCE_PATH "${SOURCE_PATH}"
+     OPTIONS
