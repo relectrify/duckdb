@@ -10,6 +10,7 @@ duckdb_extension_load(mysql_scanner
     GIT_URL https://github.com/duckdb/duckdb-mysql
     GIT_TAG e2760cb11f13a12ce74e8c798c07c48deb97a577
     SUBMODULES database-connector
+    APPLY_PATCHES
 )
 duckdb_extension_load(postgres_scanner
     GIT_URL https://github.com/duckdb/duckdb-postgres
