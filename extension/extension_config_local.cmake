@@ -16,6 +16,7 @@ duckdb_extension_load(postgres_scanner
     GIT_URL https://github.com/duckdb/duckdb-postgres
     GIT_TAG 41223e51559cd581f1c06e170b71c71df25bbaac
     SUBMODULES database-connector
+    APPLY_PATCHES
 )
 duckdb_extension_load(aws
     GIT_URL https://github.com/duckdb/duckdb-aws
