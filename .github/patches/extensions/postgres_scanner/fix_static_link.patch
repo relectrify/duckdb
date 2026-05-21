@@ -1,0 +1,21 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 101e164..70181bf 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -38,8 +38,15 @@ if(NOT WIN32 AND NOT APPLE)
+   target_link_options(${LOADABLE_EXTENSION_NAME} PRIVATE "-Wl,-Bsymbolic")
+ endif()
+
+-target_link_libraries(${LOADABLE_EXTENSION_NAME} OpenSSL::SSL OpenSSL::Crypto
+-                      PostgreSQL::PostgreSQL ${CURL_LIBRARIES})
++set(POSTGRES_SCANNER_LIBRARIES
++    OpenSSL::SSL
++    OpenSSL::Crypto
++    PostgreSQL::PostgreSQL
++    ${CURL_LIBRARIES})
++target_link_libraries(${EXTENSION_NAME}
++    ${POSTGRES_SCANNER_LIBRARIES})
++target_link_libraries(${LOADABLE_EXTENSION_NAME}
++    ${POSTGRES_SCANNER_LIBRARIES})
+ set_property(TARGET ${EXTENSION_NAME} PROPERTY C_STANDARD 99)
+ set_property(TARGET ${LOADABLE_EXTENSION_NAME} PROPERTY C_STANDARD 99)
