@@ -1,0 +1,19 @@
+--- a/CMakeLists.txt	2026-05-21 15:42:23.442217203 +1000
++++ b/CMakeLists.txt	2026-05-21 15:42:43.591615730 +1000
+@@ -50,11 +50,16 @@
+     )
+ endif()
+ 
+-target_link_libraries(${LOADABLE_EXTENSION_NAME}
++set(POSTGRES_SCANNER_LIBRARIES
+     OpenSSL::SSL
+     OpenSSL::Crypto
+     PostgreSQL::PostgreSQL
+     ${CURL_LIBRARIES})
++target_link_libraries(${EXTENSION_NAME}
++    ${POSTGRES_SCANNER_LIBRARIES})
++target_link_libraries(${LOADABLE_EXTENSION_NAME}
++    ${POSTGRES_SCANNER_LIBRARIES})
++
+ set_property(TARGET ${EXTENSION_NAME} PROPERTY C_STANDARD 99)
+ set_property(TARGET ${LOADABLE_EXTENSION_NAME} PROPERTY C_STANDARD 99)
