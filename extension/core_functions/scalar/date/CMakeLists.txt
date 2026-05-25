@@ -10,7 +10,8 @@ add_library_unity(
   date_trunc.cpp
   epoch.cpp
   date_part.cpp
-  make_date.cpp)
+  make_date.cpp
+  tai.cpp)
 set(CORE_FUNCTION_FILES
     ${CORE_FUNCTION_FILES} $<TARGET_OBJECTS:duckdb_core_functions_date>
     PARENT_SCOPE)

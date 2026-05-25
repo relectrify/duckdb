@@ -1,0 +1,145 @@
+# name: test/sql/function/timestamp/tai.test
+# description: Test UTC/TAI conversion functions
+# group: [timestamp]
+
+# TAI->timestamp earliest leap second
+query T
+SELECT make_timestamp_from_tai(63072010)
+----
+1972-01-01 00:00:00
+
+query T
+SELECT make_timestamp_from_tai_ms(63072010000)
+----
+1972-01-01 00:00:00
+
+# TAI->timestamp most recent leap second
+query T
+SELECT make_timestamp_from_tai(1483228837)
+----
+2017-01-01 00:00:00
+
+query T
+SELECT make_timestamp_from_tai_ms(1483228837000)
+----
+2017-01-01 00:00:00
+
+# timestamp->TAI earliest leap second
+query I
+SELECT tai_epoch(TIMESTAMPTZ '1972-01-01 00:00:00+00')
+----
+63072010
+
+query I
+SELECT tai_epoch_ms(TIMESTAMPTZ '1972-01-01 00:00:00+00')
+----
+63072010000
+
+# timestamp->TAI most recent leap second
+query I
+SELECT tai_epoch(TIMESTAMPTZ '2017-01-01 00:00:00+00')
+----
+1483228837
+
+query I
+SELECT tai_epoch_ms(TIMESTAMPTZ '2017-01-01 00:00:00.000+00')
+----
+1483228837000
+
+# roundtrip
+query T
+SELECT make_timestamp_from_tai(tai_epoch(TIMESTAMPTZ '1972-01-01 00:00:00+00'))
+----
+1972-01-01 00:00:00
+
+query T
+SELECT make_timestamp_from_tai(tai_epoch(TIMESTAMPTZ '2017-01-01 00:00:00+00'))
+----
+2017-01-01 00:00:00
+
+# before first leap second
+statement error
+SELECT tai_epoch(TIMESTAMPTZ '1971-12-31 23:59:59+00')
+----
+Conversion Error: Conversion from UTC to TAI is not possible before 1 Jan 1972
+
+statement error
+SELECT tai_epoch_ms(TIMESTAMPTZ '1971-12-31 23:59:59+00')
+----
+Conversion Error: Conversion from UTC to TAI is not possible before 1 Jan 1972
+
+statement error
+SELECT make_timestamp_from_tai(63072009)
+----
+Conversion Error: Conversion from TAI to UTC is not possible before 1 Jan 1972
+
+statement error
+SELECT make_timestamp_from_tai_ms(63072009999)
+----
+Conversion Error: Conversion from TAI to UTC is not possible before 1 Jan 1972
+
+# Leap-second boundary: UTC -> TAI skips one TAI second
+query I
+SELECT tai_epoch(TIMESTAMPTZ '2016-12-31 23:59:59+00')
+----
+1483228835
+
+query I
+SELECT tai_epoch(TIMESTAMPTZ '2017-01-01 00:00:00+00')
+----
+1483228837
+
+# Normal inverse values around the same boundary
+query T
+SELECT make_timestamp_from_tai(1483228835)
+----
+2016-12-31 23:59:59
+
+query T
+SELECT make_timestamp_from_tai(1483228837)
+----
+2017-01-01 00:00:00
+
+# Leap-Second TAI Inputs
+
+query T
+SELECT make_timestamp_from_tai(1483228836)
+----
+2017-01-01 00:00:00
+
+query I
+SELECT tai_epoch(make_timestamp_from_tai(1483228836)::TIMESTAMPTZ)
+----
+1483228837
+
+# Infinity Handling
+
+statement error
+SELECT tai_epoch('infinity'::TIMESTAMPTZ)
+----
+Conversion Error: Attempting to calculate TAI epoch on infinite timestamp
+
+statement error
+SELECT tai_epoch_ms('infinity'::TIMESTAMPTZ)
+----
+Conversion Error: Attempting to calculate TAI epoch on infinite timestamp
+
+# Millisecond Precision
+
+query I
+SELECT tai_epoch_ms(TIMESTAMPTZ '1972-01-01 00:00:00.999+00')
+----
+63072010999
+
+query T
+SELECT make_timestamp_from_tai_ms(63072010999)
+----
+1972-01-01 00:00:00.999
+
+# Fallibility
+
+query I
+SELECT x FROM (VALUES (63072009), (63072010)) t(x)
+WHERE x >= 63072010 AND make_timestamp_from_tai(x) IS NOT NULL
+----
+63072010
