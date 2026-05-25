@@ -199,6 +199,26 @@ struct EpochNsFun {
 	static ScalarFunctionSet GetFunctions();
 };
 
+struct TaiEpochFun {
+	static constexpr const char *Name = "tai_epoch";
+	static constexpr const char *Parameters = "timestamptz";
+	static constexpr const char *Description = "Get the number of TAI seconds since 1 Jan 1970 from a timestamp";
+	static constexpr const char *Example = "tai_epoch(timestamp '2021-08-03 11:59:44.123456')";
+	static constexpr const char *Categories = "";
+
+	static ScalarFunction GetFunction();
+};
+
+struct TaiEpochMsFun {
+	static constexpr const char *Name = "tai_epoch_ms";
+	static constexpr const char *Parameters = "timestamptz";
+	static constexpr const char *Description = "Get the number of TAI milliseconds since 1 Jan 1970 from a timestamp";
+	static constexpr const char *Example = "tai_epoch_ms(timestamp '2021-08-03 11:59:44.123456')";
+	static constexpr const char *Categories = "";
+
+	static ScalarFunction GetFunction();
+};
+
 struct EraFun {
 	static constexpr const char *Name = "era";
 	static constexpr const char *Parameters = "ts";
@@ -329,6 +349,26 @@ struct MakeTimestampNsFun {
 	static constexpr const char *Categories = "";
 
 	static ScalarFunctionSet GetFunctions();
+};
+
+struct MakeTimestampFromTaiFun {
+	static constexpr const char *Name = "make_timestamp_from_tai";
+	static constexpr const char *Parameters = "secs";
+	static constexpr const char *Description = "The timestamp for the given seconds TAI since the epoch";
+	static constexpr const char *Example = "make_timestamp_from_tai(1732117793)";
+	static constexpr const char *Categories = "";
+
+	static ScalarFunction GetFunction();
+};
+
+struct MakeTimestampFromTaiMsFun {
+	static constexpr const char *Name = "make_timestamp_from_tai_ms";
+	static constexpr const char *Parameters = "millis";
+	static constexpr const char *Description = "The timestamp for the given milliseconds TAI since epoch";
+	static constexpr const char *Example = "make_timestamp_from_tai_ms(1732117793000)";
+	static constexpr const char *Categories = "";
+
+	static ScalarFunction GetFunction();
 };
 
 struct MicrosecondsFun {
