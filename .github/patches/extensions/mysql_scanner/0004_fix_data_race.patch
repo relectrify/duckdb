@@ -1,0 +1,54 @@
+diff --git i/src/include/storage/mysql_transaction.hpp w/src/include/storage/mysql_transaction.hpp
+index 2dcd569..6d2196f 100644
+--- i/src/include/storage/mysql_transaction.hpp
++++ w/src/include/storage/mysql_transaction.hpp
+@@ -52,6 +52,7 @@ private:
+ 	string time_zone;
+ 	dbconnector::pool::AcquireMode acquire_mode = dbconnector::pool::AcquireMode::FORCE;
+ 
++	mutex referenced_entries_lock;
+ 	reference_map_t<CatalogEntry, shared_ptr<CatalogEntry>> referenced_entries;
+ };
+ 
+diff --git i/src/storage/mysql_catalog_set.cpp w/src/storage/mysql_catalog_set.cpp
+index 469d230..a148571 100644
+--- i/src/storage/mysql_catalog_set.cpp
++++ w/src/storage/mysql_catalog_set.cpp
+@@ -24,8 +24,15 @@ void MySQLCatalogSet::TryLoadEntries(MySQLTransaction &transaction) {
+ 	if (is_loaded) {
+ 		return;
+ 	}
++	try {
++		LoadEntries(transaction);
++	} catch (...) {
++		// don't leave a partially loaded set behind, retry on next access
++		lock_guard<mutex> l2(entry_lock);
++		entries.clear();
++		throw;
++	}
+ 	is_loaded = true;
+-	LoadEntries(transaction);
+ }
+ 
+ void MySQLCatalogSet::DropEntry(MySQLTransaction &transaction, DropInfo &info) {
+@@ -56,6 +63,8 @@ void MySQLCatalogSet::Scan(MySQLTransaction &transaction, const std::function<vo
+ 	TryLoadEntries(transaction);
+ 	lock_guard<mutex> l2(entry_lock);
+ 	for (auto &entry : entries) {
++		// callers may hold on to the entry after the callback returns
++		transaction.ReferenceEntry(entry.second);
+ 		callback(*entry.second);
+ 	}
+ }
+diff --git i/src/storage/mysql_transaction.cpp w/src/storage/mysql_transaction.cpp
+index 8b21dae..d12dfeb 100644
+--- i/src/storage/mysql_transaction.cpp
++++ w/src/storage/mysql_transaction.cpp
+@@ -144,6 +144,7 @@ ClientContext &MySQLTransaction::GetContext() {
+ 
+ optional_ptr<CatalogEntry> MySQLTransaction::ReferenceEntry(shared_ptr<CatalogEntry> &entry) {
+ 	auto &ref = *entry;
++	lock_guard<mutex> guard(referenced_entries_lock);
+ 	referenced_entries.emplace(ref, entry);
+ 	return ref;
+ }
